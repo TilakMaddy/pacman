@@ -15,7 +15,7 @@ export default class GameBoard {
     this.DOMGrid.style.cssText = `
       grid-template-columns: repeat(${GRID_SIZE}, ${CELL_SIZE}px);
     `;
-    console.log(level);
+
     level.forEach(squareValue => {
       const div = document.createElement('div');
       div.classList.add('square', CLASS_LIST[squareValue]);

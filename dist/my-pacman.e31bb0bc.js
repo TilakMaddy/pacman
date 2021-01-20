@@ -316,7 +316,6 @@ var GameBoard = /*#__PURE__*/function () {
       this.grid = [];
       this.DOMGrid.innerHTML = '';
       this.DOMGrid.style.cssText = "\n      grid-template-columns: repeat(".concat(_setup.GRID_SIZE, ", ").concat(_setup.CELL_SIZE, "px);\n    ");
-      console.log(level);
       level.forEach(function (squareValue) {
         var div = document.createElement('div');
         div.classList.add('square', _setup.CLASS_LIST[squareValue]);
@@ -473,7 +472,119 @@ var Pacman = /*#__PURE__*/function () {
 }();
 
 exports.default = Pacman;
-},{"@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","./setup":"setup.js"}],"index.js":[function(require,module,exports) {
+},{"@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","./setup":"setup.js"}],"Ghost.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers/toConsumableArray"));
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _setup = require("./setup");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Ghost = /*#__PURE__*/function () {
+  function Ghost() {
+    var speed = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 5;
+    var startPos = arguments.length > 1 ? arguments[1] : undefined;
+    var movement = arguments.length > 2 ? arguments[2] : undefined;
+    var name = arguments.length > 3 ? arguments[3] : undefined;
+    (0, _classCallCheck2.default)(this, Ghost);
+    this.name = name;
+    this.movement = movement;
+    this.startPos = startPos;
+    this.pos = startPos;
+    this.speed = speed;
+    this.timer = 0;
+    this.isScared = false;
+    this.rotation = false;
+    this.dir = _setup.DIRECTIONS.ArrowRight;
+  }
+
+  (0, _createClass2.default)(Ghost, [{
+    key: "shouldMove",
+    value: function shouldMove() {
+      if (this.timer === this.speed) {
+        this.timer = 0;
+        return true;
+      }
+
+      this.timer++;
+    }
+  }, {
+    key: "getNextMove",
+    value: function getNextMove(objectExist) {
+      // Call move algoritm here
+      var _this$movement = this.movement(this.pos, this.dir, objectExist),
+          nextMovePos = _this$movement.nextMovePos,
+          direction = _this$movement.direction;
+
+      return {
+        nextMovePos: nextMovePos,
+        direction: direction
+      };
+    }
+  }, {
+    key: "makeMove",
+    value: function makeMove() {
+      var classesToRemove = [_setup.OBJECT_TYPE.GHOST, _setup.OBJECT_TYPE.SCARED, this.name];
+      var classesToAdd = [_setup.OBJECT_TYPE.GHOST, this.name];
+      if (this.isScared) classesToAdd = [].concat((0, _toConsumableArray2.default)(classesToAdd), [_setup.OBJECT_TYPE.SCARED]);
+      return {
+        classesToAdd: classesToAdd,
+        classesToRemove: classesToRemove
+      };
+    }
+  }, {
+    key: "setNewPos",
+    value: function setNewPos(nextPos, dir) {
+      this.dir = dir;
+      this.pos = nextPos;
+    }
+  }]);
+  return Ghost;
+}();
+
+exports.default = Ghost;
+},{"@babel/runtime/helpers/toConsumableArray":"node_modules/@babel/runtime/helpers/toConsumableArray.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","./setup":"setup.js"}],"ghostMoves.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.randomMovement = randomMovement;
+
+var _setup = require("./setup");
+
+// Primitive random movement.
+function randomMovement(position, direction, objectExist) {
+  var dir = direction;
+  var nextMovePos = position + dir.movement; // Create an array from the diretions objects keys
+
+  var keys = Object.keys(_setup.DIRECTIONS);
+
+  while (objectExist(nextMovePos, _setup.OBJECT_TYPE.WALL) || objectExist(nextMovePos, _setup.OBJECT_TYPE.GHOST)) {
+    // Get a random key from that array
+    var key = keys[Math.floor(Math.random() * keys.length)]; // Set the new direction
+
+    dir = _setup.DIRECTIONS[key]; // Set the next move
+
+    nextMovePos = position + dir.movement;
+  }
+
+  return {
+    nextMovePos: nextMovePos,
+    direction: dir
+  };
+}
+},{"./setup":"setup.js"}],"index.js":[function(require,module,exports) {
 "use strict";
 
 var _setup = require("./setup");
@@ -481,6 +592,10 @@ var _setup = require("./setup");
 var _GameBoard = _interopRequireDefault(require("./GameBoard"));
 
 var _Pacman = _interopRequireDefault(require("./Pacman"));
+
+var _Ghost = _interopRequireDefault(require("./Ghost"));
+
+var _ghostMoves = require("./ghostMoves");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -507,6 +622,10 @@ function checkCollision(pacman, ghosts) {}
 
 function gameLoop(pacman, ghosts) {
   gameBoard.moveCharacter(pacman);
+  ghosts.forEach(function (ghost) {
+    console.log(ghost);
+    gameBoard.moveCharacter(ghost);
+  });
 }
 
 function startGame() {
@@ -520,13 +639,14 @@ function startGame() {
   document.addEventListener('keydown', function (e) {
     pacman.handleKeyInput(e, gameBoard.objectExists.bind(gameBoard));
   });
+  var ghosts = [new _Ghost.default(5, 188, _ghostMoves.randomMovement, _setup.OBJECT_TYPE.BLINKY), new _Ghost.default(4, 209, _ghostMoves.randomMovement, _setup.OBJECT_TYPE.PINKY), new _Ghost.default(3, 230, _ghostMoves.randomMovement, _setup.OBJECT_TYPE.INKY), new _Ghost.default(2, 251, _ghostMoves.randomMovement, _setup.OBJECT_TYPE.CLYDE)];
   timer = setInterval(function () {
-    gameLoop(pacman);
+    gameLoop(pacman, ghosts);
   }, GLOBAL_SPEED);
 }
 
 startButton.addEventListener('click', startGame);
-},{"./setup":"setup.js","./GameBoard":"GameBoard.js","./Pacman":"Pacman.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"./setup":"setup.js","./GameBoard":"GameBoard.js","./Pacman":"Pacman.js","./Ghost":"Ghost.js","./ghostMoves":"ghostMoves.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -554,7 +674,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65407" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61821" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
