@@ -39,12 +39,32 @@ export default class GameBoard {
     this.grid[pos].classList.remove(...classes);
   }
 
-  objectExists(pos, object) {
-    return this.grid[pos].classList.contains(obejct);
+  objectExists = (pos, objectT) => {
+    return this.grid[pos].classList.contains(objectT);
   }
 
   rotateDiv(pos, deg) {
     this.grid[pos].style.transform = `rotate(${deg}deg)`;
+  }
+
+  moveCharacter(character) {
+    if(character.shouldMove()) {
+
+      const { nextMovePos, direction } =
+        character.getNextMove(this.objectExists.bind(this));
+
+      const { classesToRemove, classesToAdd } = character.makeMove();
+
+      if(character.rotation && character.nextMovePos !== character.pos) {
+        this.rotateDiv(nextMovePos, character.dir.rotation);
+        this.rotateDiv(character.pos, 0);
+      }
+
+      this.removeObject(character.pos, classesToRemove);
+      this.addObject(nextMovePos, classesToAdd);
+
+      character.setNewPos(nextMovePos, direction);
+    }
   }
 
   showGameStatus(gameWin) {

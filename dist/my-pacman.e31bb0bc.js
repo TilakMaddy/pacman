@@ -257,6 +257,23 @@ function _createClass(Constructor, protoProps, staticProps) {
 }
 
 module.exports = _createClass;
+},{}],"node_modules/@babel/runtime/helpers/defineProperty.js":[function(require,module,exports) {
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+module.exports = _defineProperty;
 },{}],"GameBoard.js":[function(require,module,exports) {
 "use strict";
 
@@ -271,13 +288,20 @@ var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/cl
 
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
 
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
+
 var _setup = require("./setup");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var GameBoard = /*#__PURE__*/function () {
   function GameBoard(DOMGrid) {
+    var _this = this;
+
     (0, _classCallCheck2.default)(this, GameBoard);
+    (0, _defineProperty2.default)(this, "objectExists", function (pos, objectT) {
+      return _this.grid[pos].classList.contains(objectT);
+    });
     this.dotCount = 0;
     this.grid = [];
     this.DOMGrid = DOMGrid;
@@ -286,7 +310,7 @@ var GameBoard = /*#__PURE__*/function () {
   (0, _createClass2.default)(GameBoard, [{
     key: "createGrid",
     value: function createGrid(level) {
-      var _this = this;
+      var _this2 = this;
 
       this.dotCount = 0;
       this.grid = [];
@@ -298,11 +322,11 @@ var GameBoard = /*#__PURE__*/function () {
         div.classList.add('square', _setup.CLASS_LIST[squareValue]);
         div.style.cssText = "\n        width: ".concat(_setup.CELL_SIZE, "px;\n        height: ").concat(_setup.CELL_SIZE, "px;\n      ");
 
-        _this.DOMGrid.append(div);
+        _this2.DOMGrid.append(div);
 
-        _this.grid.push(div);
+        _this2.grid.push(div);
 
-        if (_setup.OBJECT_TYPE.DOT == _setup.CLASS_LIST[squareValue]) _this.dotCount++;
+        if (_setup.OBJECT_TYPE.DOT == _setup.CLASS_LIST[squareValue]) _this2.dotCount++;
       });
     }
   }, {
@@ -320,14 +344,31 @@ var GameBoard = /*#__PURE__*/function () {
       (_this$grid$pos$classL2 = this.grid[pos].classList).remove.apply(_this$grid$pos$classL2, (0, _toConsumableArray2.default)(classes));
     }
   }, {
-    key: "objectExists",
-    value: function objectExists(pos, object) {
-      return this.grid[pos].classList.contains(obejct);
-    }
-  }, {
     key: "rotateDiv",
     value: function rotateDiv(pos, deg) {
       this.grid[pos].style.transform = "rotate(".concat(deg, "deg)");
+    }
+  }, {
+    key: "moveCharacter",
+    value: function moveCharacter(character) {
+      if (character.shouldMove()) {
+        var _character$getNextMov = character.getNextMove(this.objectExists.bind(this)),
+            nextMovePos = _character$getNextMov.nextMovePos,
+            direction = _character$getNextMov.direction;
+
+        var _character$makeMove = character.makeMove(),
+            classesToRemove = _character$makeMove.classesToRemove,
+            classesToAdd = _character$makeMove.classesToAdd;
+
+        if (character.rotation && character.nextMovePos !== character.pos) {
+          this.rotateDiv(nextMovePos, character.dir.rotation);
+          this.rotateDiv(character.pos, 0);
+        }
+
+        this.removeObject(character.pos, classesToRemove);
+        this.addObject(nextMovePos, classesToAdd);
+        character.setNewPos(nextMovePos, direction);
+      }
     }
   }, {
     key: "showGameStatus",
@@ -350,7 +391,7 @@ var GameBoard = /*#__PURE__*/function () {
 
 exports.default = GameBoard;
 ;
-},{"@babel/runtime/helpers/toConsumableArray":"node_modules/@babel/runtime/helpers/toConsumableArray.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","./setup":"setup.js"}],"Pacman.js":[function(require,module,exports) {
+},{"@babel/runtime/helpers/toConsumableArray":"node_modules/@babel/runtime/helpers/toConsumableArray.js","@babel/runtime/helpers/classCallCheck":"node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/createClass":"node_modules/@babel/runtime/helpers/createClass.js","@babel/runtime/helpers/defineProperty":"node_modules/@babel/runtime/helpers/defineProperty.js","./setup":"setup.js"}],"Pacman.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -367,14 +408,14 @@ var _setup = require("./setup");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var Pacman = /*#__PURE__*/function () {
-  function Pacman(startPos, speed) {
+  function Pacman(pos, speed) {
     (0, _classCallCheck2.default)(this, Pacman);
-    this.startPos = startPos;
+    this.pos = pos;
     this.speed = speed;
     this.dir = null;
     this.timer = 0;
     this.powerPill = false;
-    this.rotation = true;
+    this.rotation = true; // we will rotate when we change direction
   }
 
   (0, _createClass2.default)(Pacman, [{
@@ -424,7 +465,7 @@ var Pacman = /*#__PURE__*/function () {
       if (!(e.keyCode >= 37 && e.keyCode <= 40)) return;
       var dir = _setup.DIRECTIONS[e.key];
       var nextMovePos = this.pos + dir.movement;
-      if (objectExists(nextMovePos, _setup.OBJECT_TYPE.WALL)) return;
+      if (objectExists(nextMovePos, _setup.OBJECT_TYPE.WALL) || objectExists(nextMovePos, _setup.OBJECT_TYPE.GHOSTLAIR)) return;
       this.dir = dir;
     }
   }]);
@@ -464,7 +505,9 @@ function gameOver(pacman, grid) {}
 
 function checkCollision(pacman, ghosts) {}
 
-function gameLoop(pacman, ghosts) {}
+function gameLoop(pacman, ghosts) {
+  gameBoard.moveCharacter(pacman);
+}
 
 function startGame() {
   gameWin = false;
@@ -477,6 +520,9 @@ function startGame() {
   document.addEventListener('keydown', function (e) {
     pacman.handleKeyInput(e, gameBoard.objectExists.bind(gameBoard));
   });
+  timer = setInterval(function () {
+    gameLoop(pacman);
+  }, GLOBAL_SPEED);
 }
 
 startButton.addEventListener('click', startGame);

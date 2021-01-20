@@ -2,14 +2,14 @@ import { OBJECT_TYPE, DIRECTIONS } from "./setup";
 
 export default class Pacman {
 
-  constructor(startPos, speed) {
+  constructor(pos, speed) {
 
-    this.startPos = startPos;
+    this.pos = pos;
     this.speed = speed;
     this.dir = null;
     this.timer = 0;
     this.powerPill = false;
-    this.rotation = true;
+    this.rotation = true; // we will rotate when we change direction
 
   }
 
@@ -48,7 +48,7 @@ export default class Pacman {
     return  { classesToRemove, classesToAdd };
   }
 
-  setNewPos(pos) {
+  setNewPos(pos){
     this.pos = pos;
   }
 
@@ -60,7 +60,9 @@ export default class Pacman {
     const dir = DIRECTIONS[e.key];
     const nextMovePos = this.pos + dir.movement;
 
-    if(objectExists(nextMovePos, OBJECT_TYPE.WALL))
+    if(objectExists(nextMovePos, OBJECT_TYPE.WALL)
+        || objectExists(nextMovePos, OBJECT_TYPE.GHOSTLAIR)
+     )
       return;
 
     this.dir = dir;
