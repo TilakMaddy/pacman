@@ -117,9 +117,88 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"index.js":[function(require,module,exports) {
-console.log('Working!');
-},{}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+})({"setup.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.LEVEL = exports.CLASS_LIST = exports.OBJECT_TYPE = exports.DIRECTIONS = exports.CELL_SIZE = exports.GRID_SIZE = void 0;
+var GRID_SIZE = 20;
+exports.GRID_SIZE = GRID_SIZE;
+var CELL_SIZE = 20; // in pixels
+
+exports.CELL_SIZE = CELL_SIZE;
+var DIRECTIONS = {
+  ArrowLeft: {
+    code: 37,
+    movement: -1,
+    rotation: 180
+  },
+  ArrowUp: {
+    code: 38,
+    movement: -GRID_SIZE,
+    rotation: 270
+  },
+  ArrowRight: {
+    code: 39,
+    movement: 1,
+    rotation: 0
+  },
+  ArrowDown: {
+    code: 40,
+    movement: GRID_SIZE,
+    rotation: 90
+  }
+};
+exports.DIRECTIONS = DIRECTIONS;
+var OBJECT_TYPE = {
+  BLANK: 'blank',
+  WALL: 'wall',
+  DOT: 'dot',
+  BLINKY: 'blinky',
+  PINKY: 'pinky',
+  INKY: 'inky',
+  CLYDE: 'clyde',
+  PILL: 'pill',
+  PACMAN: 'pacman',
+  GHOST: 'ghost',
+  SCARED: 'scared',
+  GHOSTLAIR: 'lair'
+}; // Lookup array for classes
+
+exports.OBJECT_TYPE = OBJECT_TYPE;
+var CLASS_LIST = [OBJECT_TYPE.BLANK, OBJECT_TYPE.WALL, OBJECT_TYPE.DOT, OBJECT_TYPE.BLINKY, OBJECT_TYPE.PINKY, OBJECT_TYPE.INKY, OBJECT_TYPE.CLYDE, OBJECT_TYPE.PILL, OBJECT_TYPE.PACMAN, OBJECT_TYPE.GHOSTLAIR];
+exports.CLASS_LIST = CLASS_LIST;
+var LEVEL = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 2, 1, 1, 2, 1, 1, 7, 1, 1, 2, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 2, 1, 1, 7, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 2, 1, 1, 2, 2, 2, 2, 1, 2, 2, 2, 1, 1, 2, 2, 2, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 0, 0, 0, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 0, 0, 0, 0, 0, 0, 1, 2, 1, 2, 1, 9, 9, 9, 9, 1, 2, 1, 2, 1, 0, 0, 0, 1, 1, 1, 1, 2, 1, 2, 1, 9, 9, 9, 9, 1, 2, 1, 2, 1, 1, 1, 1, 1, 0, 0, 0, 2, 2, 2, 1, 9, 9, 9, 9, 1, 2, 2, 2, 0, 0, 0, 1, 1, 1, 1, 1, 2, 1, 2, 1, 9, 9, 9, 9, 1, 2, 1, 2, 1, 1, 1, 1, 0, 0, 0, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 0, 0, 0, 0, 0, 0, 1, 2, 1, 2, 0, 0, 0, 0, 0, 0, 2, 1, 2, 1, 0, 0, 0, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 2, 2, 2, 1, 2, 2, 2, 1, 1, 2, 2, 2, 1, 2, 2, 2, 2, 1, 1, 2, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 7, 1, 1, 2, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 2, 1, 1, 7, 1, 1, 2, 1, 1, 2, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+exports.LEVEL = LEVEL;
+},{}],"index.js":[function(require,module,exports) {
+"use strict";
+
+var _setup = require("./setup");
+
+var gameGrid = document.querySelector('#game');
+var scoreTable = document.querySelector("#score");
+var startButton = document.querySelector("#start-button");
+var POWER_PILL_TIME = 10000;
+var GLOBAL_SPEED = 80; // initial setup
+
+var score = 0;
+var timer = null;
+var gameWin = false; //keep track whether or not pacman ate the power pill which will be active
+// for a certain amount of time
+
+var powerPillActive = false;
+var powerPillTimer = null;
+
+function gameOver(pacman, grid) {}
+
+function checkCollision(pacman, ghosts) {}
+
+function gameLoop(pacman, ghosts) {}
+
+function startGame() {}
+},{"./setup":"setup.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
