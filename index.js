@@ -1,8 +1,11 @@
 import { LEVEL, OBJECT_TYPE } from './setup';
+import GameBoard from './GameBoard';
+
 
 const gameGrid = document.querySelector('#game');
 const scoreTable = document.querySelector("#score");
 const startButton = document.querySelector("#start-button");
+const gameBoard = GameBoard.createGameboard(gameGrid, LEVEL);
 
 const POWER_PILL_TIME = 10000;
 const GLOBAL_SPEED = 80;
