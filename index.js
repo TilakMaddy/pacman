@@ -5,6 +5,7 @@ import Ghost from './Ghost';
 import { randomMovement } from './ghostMoves';
 
 
+
 const gameGrid = document.querySelector('#game');
 const scoreTable = document.querySelector("#score");
 const startButton = document.querySelector("#start-button");
@@ -27,18 +28,82 @@ let powerPillTimer = null;
 
 function gameOver(pacman, grid) {
 
+  document.removeEventListener('keydown', e => {
+    pacman.handleKeyInput(e, gameBoard.objectExists.bind(gameBoard))
+  });
+
+  gameBoard.showGameStatus(gameWin);
+  clearInterval(timer);
+  startButton.classList.remove('hide');
+
 }
 
 function checkCollision(pacman, ghosts) {
+  const collidedGhost = ghosts.find(ghost => ghost.pos == pacman.pos);
 
+  if(collidedGhost) {
+    if(pacman.powerPill) {
+      gameBoard.removeObject(collidedGhost.pos, [
+        OBJECT_TYPE.GHOST,
+        OBJECT_TYPE.SCARED,
+        collidedGhost.name
+      ]);
+      collidedGhost.pos = collidedGhost.startPos;
+      score+=100;
+    }
+    else {
+      console.log("lost ");
+
+      gameBoard.removeObject(pacman.pos, [OBJECT_TYPE.PACMAN]);
+      gameBoard.rotateDiv(pacman.pos, 0);
+      gameOver(pacman, gameGrid);
+    }
+  }
 }
 
 function gameLoop(pacman, ghosts) {
   gameBoard.moveCharacter(pacman);
+  checkCollision(pacman, ghosts);
+
   ghosts.forEach(ghost => {
-    console.log(ghost);
     gameBoard.moveCharacter(ghost);
+    checkCollision(pacman, ghosts);
   });
+
+  if(gameBoard.objectExists(pacman.pos, OBJECT_TYPE.DOT)) {
+
+    gameBoard.removeObject(pacman.pos, [OBJECT_TYPE.DOT]);
+    gameBoard.dotCount--;
+    score+=10;
+
+  }
+
+  if(gameBoard.objectExists(pacman.pos, OBJECT_TYPE.PILL)) {
+
+    gameBoard.removeObject(pacman.pos, [OBJECT_TYPE.PILL]);
+    pacman.powerPill  = true;
+    score += 50;
+
+    clearTimeout(powerPillTimer);
+
+    powerPillTimer = setTimeout(function() {
+      pacman.powerPill = false;
+    }, POWER_PILL_TIME);
+
+  }
+
+  if(pacman.powerPill !== powerPillActive) {
+    powerPillActive = pacman.powerPill;
+    ghosts.forEach(ghost => ghost.isScared = powerPillActive);
+  }
+
+  if(gameBoard.dotCount === 0) {
+    gameWin = true;
+    gameOver(pacman, ghosts);
+  }
+
+  scoreTable.innerHTML = score;
+
 }
 
 function startGame() {
