@@ -4,7 +4,11 @@ import Pacman from './Pacman';
 import Ghost from './Ghost';
 import { randomMovement } from './ghostMoves';
 
-
+const soundDot = './sounds/munch.wav';
+const soundPill = './sounds/pill .wav';
+const soundGameStart = './sounds/game_start.wav';
+const soundGameOver = './sounds/death.wav';
+const soundGhost = './sounds/eat_ghost.wav';
 
 const gameGrid = document.querySelector('#game');
 const scoreTable = document.querySelector("#score");
@@ -25,8 +29,14 @@ let gameWin = false;
 let powerPillActive = false;
 let powerPillTimer = null;
 
+// audio
+function playAudio(effect) {
+  new Audio(effect).play();
+}
 
 function gameOver(pacman, grid) {
+
+  playAudio(soundGameOver);
 
   document.removeEventListener('keydown', e => {
     pacman.handleKeyInput(e, gameBoard.objectExists.bind(gameBoard))
@@ -42,7 +52,11 @@ function checkCollision(pacman, ghosts) {
   const collidedGhost = ghosts.find(ghost => ghost.pos == pacman.pos);
 
   if(collidedGhost) {
+
     if(pacman.powerPill) {
+
+      playAudio(soundGhost);
+
       gameBoard.removeObject(collidedGhost.pos, [
         OBJECT_TYPE.GHOST,
         OBJECT_TYPE.SCARED,
@@ -51,6 +65,7 @@ function checkCollision(pacman, ghosts) {
       collidedGhost.pos = collidedGhost.startPos;
       score+=100;
     }
+
     else {
       console.log("lost ");
 
@@ -72,6 +87,8 @@ function gameLoop(pacman, ghosts) {
 
   if(gameBoard.objectExists(pacman.pos, OBJECT_TYPE.DOT)) {
 
+    playAudio(soundDot);
+
     gameBoard.removeObject(pacman.pos, [OBJECT_TYPE.DOT]);
     gameBoard.dotCount--;
     score+=10;
@@ -79,6 +96,8 @@ function gameLoop(pacman, ghosts) {
   }
 
   if(gameBoard.objectExists(pacman.pos, OBJECT_TYPE.PILL)) {
+
+    playAudio(soundPill);
 
     gameBoard.removeObject(pacman.pos, [OBJECT_TYPE.PILL]);
     pacman.powerPill  = true;
@@ -107,9 +126,13 @@ function gameLoop(pacman, ghosts) {
 }
 
 function startGame() {
+
+  playAudio(soundGameStart);
+
   gameWin = false;
   powerPillActive = false;
   score = 0;
+
   startButton.classList.add('hide');
 
   gameBoard.createGrid(LEVEL);
