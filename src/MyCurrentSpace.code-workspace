@@ -1,0 +1,22 @@
+{
+	"folders": [
+		{
+			"path": "/Users/tilak/Documents/crwn-clothing"
+		},
+		{
+			"path": "/Users/tilak/Documents/d3shaunpelling"
+		},
+		{
+			"path": "/Users/tilak/Downloads/d3-tracker"
+		},
+		{
+			"path": "/Users/tilak/Downloads/vanilla-js-pacman-master/my-pacman"
+		},
+		{
+			"path": "/Users/tilak/Downloads/vanilla-js-pacman-master/js-pacman-FINISHED"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "my-pacman"
+	}
+}
