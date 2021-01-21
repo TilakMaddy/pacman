@@ -5,7 +5,7 @@ import Ghost from './Ghost';
 import { randomMovement } from './ghostMoves';
 
 const soundDot = './sounds/munch.wav';
-const soundPill = './sounds/pill .wav';
+const soundPill = './sounds/pill.wav';
 const soundGameStart = './sounds/game_start.wav';
 const soundGameOver = './sounds/death.wav';
 const soundGhost = './sounds/eat_ghost.wav';
@@ -13,6 +13,7 @@ const soundGhost = './sounds/eat_ghost.wav';
 const gameGrid = document.querySelector('#game');
 const scoreTable = document.querySelector("#score");
 const startButton = document.querySelector("#start-button");
+const levels = document.querySelector('.levels');
 const gameBoard = GameBoard.createGameboard(gameGrid, LEVEL);
 
 const POWER_PILL_TIME = 10000;
@@ -22,6 +23,7 @@ const GLOBAL_SPEED = 80;
 let score = 0;
 let timer = null;
 let gameWin = false;
+let currentLevel = 1;
 
 //keep track whether or not pacman ate the power pill which will be active
 // for a certain amount of time
@@ -44,7 +46,9 @@ function gameOver(pacman, grid) {
 
   gameBoard.showGameStatus(gameWin);
   clearInterval(timer);
+
   startButton.classList.remove('hide');
+  levels.classList.remove('hide');
 
 }
 
@@ -67,7 +71,6 @@ function checkCollision(pacman, ghosts) {
     }
 
     else {
-      console.log("lost ");
 
       gameBoard.removeObject(pacman.pos, [OBJECT_TYPE.PACMAN]);
       gameBoard.rotateDiv(pacman.pos, 0);
@@ -134,21 +137,29 @@ function startGame() {
   score = 0;
 
   startButton.classList.add('hide');
+  levels.classList.add('hide');
 
   gameBoard.createGrid(LEVEL);
   const pacman = new Pacman(287, 2);
 
   gameBoard.addObject(287, [OBJECT_TYPE.PACMAN]);
+
   document.addEventListener('keydown', e => {
     pacman.handleKeyInput(e, gameBoard.objectExists.bind(gameBoard))
   });
 
-  const ghosts = [
-    new Ghost(5, 188,  randomMovement, OBJECT_TYPE.BLINKY),
-    new Ghost(4, 209,  randomMovement, OBJECT_TYPE.PINKY),
-    new Ghost(3, 230,  randomMovement, OBJECT_TYPE.INKY),
-    new Ghost(2, 251,  randomMovement, OBJECT_TYPE.CLYDE)
+  let ghosts = [
+    new Ghost(5, 188,  randomMovement, OBJECT_TYPE.BLINKY)
   ];
+
+  if(currentLevel >= 2) {
+    ghosts.push(new Ghost(4, 209,  randomMovement, OBJECT_TYPE.PINKY));
+  }
+
+  if(currentLevel ===  3) {
+    ghosts.push(new Ghost(3, 230,  randomMovement, OBJECT_TYPE.INKY));
+    ghosts.push(new Ghost(2, 251,  randomMovement, OBJECT_TYPE.CLYDE));
+  }
 
   timer = setInterval(() => {
     gameLoop(pacman, ghosts)
@@ -157,3 +168,17 @@ function startGame() {
 }
 
 startButton.addEventListener('click', startGame);
+
+levels.addEventListener('click', function(e) {
+  if(e.target.classList.contains('level')) {
+
+    const allButtons = levels.querySelectorAll('a');
+    allButtons.forEach(butt => butt.classList.remove("active"));
+
+    e.target.classList.add("active");
+    const levelStr = e.target.id;
+    const level = parseInt(levelStr[levelStr.length - 1]);
+    currentLevel = level;
+  }
+});
+

@@ -56,7 +56,7 @@ body {
 }
 
 .hide {
-  display: none;
+  display: none !important;
 }
 
 .square {
@@ -163,4 +163,39 @@ body {
       0 20px
     );
   }
+}
+
+/*levels*/
+
+.levels {
+  position: fixed;
+  top: 40%;
+  left: 5%;
+  transform: translateY(-50%);
+  width: 200px;
+  height: 250px;
+  background: transparent;
+  display: grid;
+  gap: 30px;
+  z-index: 2;
+}
+
+.levels a {
+  display: inline-block;
+  outline: none;
+  cursor: pointer;
+  background: #000;
+  color: blue;
+  font-weight: bold;
+  font-size: 22px;
+  border: 2px solid blue;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
+.levels a.active {
+  border:2px solid tomato;
+  color: white;
 }
