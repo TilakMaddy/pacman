@@ -1,6 +1,6 @@
 import { GRID_SIZE, CELL_SIZE, OBJECT_TYPE, CLASS_LIST } from './setup';
 import PacQueue from './PacmanQueue';
-
+import { hslToRgb } from './helper';
 
 export default class GameBoard {
 
@@ -25,10 +25,15 @@ export default class GameBoard {
         width: ${CELL_SIZE}px;
         height: ${CELL_SIZE}px;
       `;
+      if(OBJECT_TYPE.DOT == CLASS_LIST[squareValue]) {
+        this.dotCount++;
+        const [r, g, b] = hslToRgb(Math.random() * 3.6, 1, 0.5);
+        div.style.cssText += `
+          background: rgba(${Math.max(r / 255, r * 1.5)}, ${g}, ${b * 0.5}, 1) !important;
+        `;
+      }
       this.DOMGrid.append(div);
       this.grid.push(div);
-      if(OBJECT_TYPE.DOT == CLASS_LIST[squareValue])
-        this.dotCount++;
     });
 
   }
@@ -39,10 +44,20 @@ export default class GameBoard {
 
   removeObject(pos, classes) {
     this.grid[pos].classList.remove(...classes);
+    /**
+     * we must remove the background property otherwise pacman will merge colors with
+     * the div the next time he is there in that grid!
+     */
+    for(let theClass of classes) {
+      if(theClass == OBJECT_TYPE.DOT) {
+        this.grid[pos].style.background = "";
+        break;
+      }
+    }
   }
 
-  objectExists = (pos, objectT) => {
-    return this.grid[pos].classList.contains(objectT);
+  objectExists = (pos, object) => {
+    return this.grid[pos].classList.contains(object);
   }
 
   rotateDiv(pos, deg) {
