@@ -1,8 +1,8 @@
-import { LEVEL, OBJECT_TYPE } from './setup';
+import { LEVEL, OBJECT_TYPE, GRID_SIZE } from './setup';
 import GameBoard from './GameBoard';
 import Pacman from './Pacman';
 import Ghost from './Ghost';
-import { randomMovement } from './ghostMoves';
+import { randomMovement, bestBFSMovement } from './ghostMoves';
 
 const soundDot = './sounds/munch.wav';
 const soundPill = './sounds/pill.wav';
@@ -31,9 +31,13 @@ let currentLevel = 1;
 let powerPillActive = false;
 let powerPillTimer = null;
 
-// audio
+
 function playAudio(effect) {
-  new Audio(effect).play();
+  try {
+    new Audio(effect).play();
+  } catch(e) {
+    // ain't a big deal X) haha
+  }
 }
 
 function gameOver(pacman, grid) {

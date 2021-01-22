@@ -1,4 +1,6 @@
 import { GRID_SIZE, CELL_SIZE, OBJECT_TYPE, CLASS_LIST } from './setup';
+import PacQueue from './PacmanQueue';
+
 
 export default class GameBoard {
 
@@ -66,6 +68,7 @@ export default class GameBoard {
       character.setNewPos(nextMovePos, direction);
     }
   }
+
 
   showGameStatus(gameWin) {
     const div = document.createElement('div');
