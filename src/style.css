@@ -76,8 +76,19 @@ body {
 
 .pill {
   background: white;
-  border: 5px solid black;
   border-radius: 50%;
+  z-index: 2;
+  animation: glow 0.5s alternate infinite;
+}
+
+@keyframes glow {
+  0% {
+    box-shadow: none;
+  }
+  100%{
+    box-shadow:
+    0 0 2px 5px #0ff;
+  }
 }
 
 .ghost {
@@ -92,11 +103,11 @@ body {
   position: absolute;
   width: 3px;
   height: 3px;
-  background: black;
+  background: black !important;
   border-radius: 50%;
   left: 3px;
   top: 5px;
-  border: 2px solid white;
+  border: 2px solid white !important;
 }
 
 .ghost::after {
@@ -105,35 +116,37 @@ body {
   position: absolute;
   width: 3px;
   height: 3px;
-  background: black;
+  background: black !important;
   border-radius: 50%;
   right: 3px;
   top: 5px;
   border: 2px solid white;
 }
 
-.scared {
-  background: blue !important;
-}
-
 .blinky {
-  background: red;
+  background: red !important;
 }
 
 .pinky {
-  background: pink;
+  background: pink !important;
 }
 
 .inky {
-  background: cyan;
+  background: cyan !important;
 }
 
 .clyde {
-  background: orange;
+  background: orange !important;
 }
 
+.scared {
+  background: blue !important;
+  animation: glow 0.5s alternate infinite;
+}
+
+
 .pacman {
-  background: yellow;
+  background: yellow !important;
   border: none;
   border-radius: 50%;
   clip-path: polygon(
